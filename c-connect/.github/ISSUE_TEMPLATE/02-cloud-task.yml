@@ -1,0 +1,36 @@
+name: Cloud / platform task
+description: Infrastructure, pipeline, or reliability work
+title: "[REF] "
+labels: ["type:task", "track:cloud", "needs-refinement"]
+body:
+  - type: dropdown
+    id: squad
+    attributes:
+      label: Squad
+      options: ["CL1 Infrastructure","CL2 Platform","CL3 CI/CD","CL4 SRE & FinOps","Cross-cutting"]
+    validations: { required: true }
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Outcome
+      description: What is true after this is done that is not true now?
+    validations: { required: true }
+  - type: textarea
+    id: ac
+    attributes:
+      label: Acceptance criteria
+      value: |
+        - [ ] Defined as code and committed — nothing configured by hand in a console
+        - [ ] Works in dev and staging
+        - [ ] Documented in a runbook or README
+        - [ ] Cost impact stated
+    validations: { required: true }
+  - type: input
+    id: cost
+    attributes:
+      label: Estimated monthly cost impact
+      placeholder: "e.g. +R180/month, or none"
+  - type: textarea
+    id: rollback
+    attributes:
+      label: How do we undo this if it goes wrong?

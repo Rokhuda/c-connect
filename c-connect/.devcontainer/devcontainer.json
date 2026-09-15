@@ -1,0 +1,11 @@
+{
+  "name": "C Connect setup",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+  "features": {
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+  "postCreateCommand": "sudo apt-get update -qq && sudo apt-get install -y jq && chmod +x setup.sh scripts/*.sh && echo '\\nRun:  export GH_ORG=your-org && ./setup.sh\\n'",
+  "customizations": {
+    "vscode": { "extensions": ["github.vscode-github-actions"] }
+  }
+}

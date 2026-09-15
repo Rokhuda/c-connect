@@ -1,0 +1,39 @@
+name: User story
+description: A customer-facing capability
+title: "[REF] "
+labels: ["type:story", "needs-refinement"]
+body:
+  - type: markdown
+    attributes:
+      value: "Do not move this to **Ready** until it meets the Definition of Ready."
+  - type: dropdown
+    id: squad
+    attributes:
+      label: Squad
+      options: ["SQ1 Identity","SQ2 Connectivity","SQ3 Colocation","SQ4 Payments","SQ5 Energy","SQ6 AI Assistant","Cross-cutting"]
+    validations: { required: true }
+  - type: textarea
+    id: story
+    attributes:
+      label: User story
+      placeholder: "As a <persona> I want <capability> so that <outcome>"
+    validations: { required: true }
+  - type: textarea
+    id: ac
+    attributes:
+      label: Acceptance criteria
+      description: Each one must be objectively pass or fail.
+      value: |
+        - [ ] Given ... when ... then ...
+        - [ ] 
+    validations: { required: true }
+  - type: dropdown
+    id: estimate
+    attributes:
+      label: Estimate (story points)
+      options: ["1","2","3","5","8","not yet estimated"]
+    validations: { required: true }
+  - type: textarea
+    id: notes
+    attributes:
+      label: Dependencies, risks, open questions

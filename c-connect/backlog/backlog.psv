@@ -1,0 +1,164 @@
+# C Connect backlog — pipe delimited. Lines starting with # are ignored.
+# ref|track|squad|sprint|type|priority|estimate|title|summary
+#
+# track    : Software | Cloud | Cross-cutting
+# squad    : must match a squad:* label created by 00-bootstrap-repo.sh
+# sprint   : must match a milestone title created by 00-bootstrap-repo.sh
+# type     : story | task | spike | bug | chore
+# priority : P0 | P1 | P2 | P3
+# estimate : 1 | 2 | 3 | 5 | 8
+#
+# The stack is entirely open source. No proprietary managed services.
+# Software squads own their own build, deploy, monitoring and on-call — the
+# DevOps tickets (refs ending -D1 to -D6) are identical for every software
+# squad on purpose. Each squad does them for its own service.
+
+# ------------------------------------------------------ SQ1 IDENTITY
+ID-01|Software|squad:identity|Sprint 0|task|P0|3|Scaffold the identity service with a health check and an OpenAPI stub|Service skeleton, /healthz and /readyz, and a published OpenAPI document other squads can code against before any logic exists.
+ID-02|Software|squad:identity|Sprint 1|story|P0|5|Register a business organisation and its first admin user|As a new customer I can create an organisation and an admin account so my company exists in the portal.
+ID-03|Software|squad:identity|Sprint 1|story|P0|5|Log in and receive a short-lived token, backed by Keycloak|Use Keycloak as the open-source identity provider. Passwords never stored by our service. Rate limit failed attempts.
+ID-04|Software|squad:identity|Sprint 2|story|P1|5|Invite teammates and assign them a role|Roles: admin, finance, engineer, viewer. Invite by email with an expiring link. Model the roles in Keycloak.
+ID-05|Software|squad:identity|Sprint 2|story|P1|8|Enforce role-based permissions at the API gateway|One central policy check so every downstream service inherits the same rules. Consider OPA rather than hand-rolled checks.
+ID-06|Software|squad:identity|Sprint 3|story|P1|5|Add TOTP multi-factor authentication|Enrolment, verification, recovery codes, and a policy requiring MFA for the admin role.
+ID-07|Software|squad:identity|Sprint 3|spike|P2|3|Decide how much authorisation logic belongs in the gateway versus each service|Timebox two days. Output an ADR the other five squads can follow.
+ID-08|Software|squad:identity|Sprint 4|task|P1|3|Session revocation and an immutable audit log of authentication events|Admins can end a session. Every login, failure, role change and invite is recorded.
+# SQ1 IDENTITY — DevOps ownership (same six for every software squad)
+ID-D1|Software|squad:identity|Sprint 0|task|P0|3|Containerise the service with a multi-stage build and a non-root user|You build it, you ship it. Small image, no secrets baked in, pinned base image, healthcheck. CL3 reviews it but does not write it for you.
+ID-D2|Software|squad:identity|Sprint 1|task|P0|3|Write and own your service's CI pipeline|Call CL3's reusable workflow: lint, unit test, Trivy scan, SBOM, build, sign. Green pipeline is your squad's responsibility, not the platform team's.
+ID-D3|Software|squad:identity|Sprint 1|task|P0|3|Own your Helm chart and deploy your own service to dev|Start from CL2's chart library. Set your own probes, resource requests and limits. Argo CD syncs it — you own the values.
+ID-D4|Software|squad:identity|Sprint 2|task|P0|3|Instrument your service with metrics, logs and traces|Prometheus metrics for rate, errors and duration. Structured JSON logs to Loki. OpenTelemetry spans to Tempo. Build your own Grafana dashboard.
+ID-D5|Software|squad:identity|Sprint 3|task|P1|3|Define and publish your service's SLO and error budget|Agree it with CL4, not from them. Pick indicators a customer would actually notice. Put the burn-rate panel on your dashboard.
+ID-D6|Software|squad:identity|Sprint 4|task|P1|3|Write your service's runbook and take an on-call shift on game day|Someone from another squad must be able to follow your runbook under pressure. You will be paged during CL4's game day.
+# -------------------------------------------------- SQ2 CONNECTIVITY
+CN-01|Software|squad:connectivity|Sprint 0|task|P0|3|Scaffold the connectivity service and generate a synthetic coverage dataset|Fake fibre footprint across four cities with realistic gaps. No real network data, ever.
+CN-02|Software|squad:connectivity|Sprint 1|story|P0|5|Look up fibre coverage by address or coordinates|As a customer I can check whether my premises are covered before I try to order. Use PostGIS for the spatial query.
+CN-03|Software|squad:connectivity|Sprint 1|story|P1|3|Browse the connectivity product catalogue with pricing|List speeds, contract terms and prices in the customer's currency.
+CN-04|Software|squad:connectivity|Sprint 2|story|P0|5|Place a connectivity order and receive an order reference|Validate coverage, capture site contact and preferred install window, return a traceable reference.
+CN-05|Software|squad:connectivity|Sprint 2|story|P1|5|Track installation status through its lifecycle stages|Submitted, survey booked, survey complete, scheduled, installed, active. Record who changed what, and when.
+CN-06|Software|squad:connectivity|Sprint 3|story|P2|3|Notify the customer when their order status changes|Email through an open-source relay. Respect notification preferences.
+CN-07|Software|squad:connectivity|Sprint 3|task|P2|5|Publish order lifecycle events to the shared NATS event bus|Billing and the AI assistant both consume these. Agree the schema with SQ4 and SQ6 before you write it.
+CN-08|Software|squad:connectivity|Sprint 4|bug|P1|2|Coverage lookup returns duplicate results for adjacent addresses|Reported at demo. Reproduce it, write a failing test, then fix it.
+# SQ2 CONNECTIVITY — DevOps ownership (same six for every software squad)
+CN-D1|Software|squad:connectivity|Sprint 0|task|P0|3|Containerise the service with a multi-stage build and a non-root user|You build it, you ship it. Small image, no secrets baked in, pinned base image, healthcheck. CL3 reviews it but does not write it for you.
+CN-D2|Software|squad:connectivity|Sprint 1|task|P0|3|Write and own your service's CI pipeline|Call CL3's reusable workflow: lint, unit test, Trivy scan, SBOM, build, sign. Green pipeline is your squad's responsibility, not the platform team's.
+CN-D3|Software|squad:connectivity|Sprint 1|task|P0|3|Own your Helm chart and deploy your own service to dev|Start from CL2's chart library. Set your own probes, resource requests and limits. Argo CD syncs it — you own the values.
+CN-D4|Software|squad:connectivity|Sprint 2|task|P0|3|Instrument your service with metrics, logs and traces|Prometheus metrics for rate, errors and duration. Structured JSON logs to Loki. OpenTelemetry spans to Tempo. Build your own Grafana dashboard.
+CN-D5|Software|squad:connectivity|Sprint 3|task|P1|3|Define and publish your service's SLO and error budget|Agree it with CL4, not from them. Pick indicators a customer would actually notice. Put the burn-rate panel on your dashboard.
+CN-D6|Software|squad:connectivity|Sprint 4|task|P1|3|Write your service's runbook and take an on-call shift on game day|Someone from another squad must be able to follow your runbook under pressure. You will be paged during CL4's game day.
+# ---------------------------------------------------- SQ3 COLOCATION
+CO-01|Software|squad:colocation|Sprint 0|task|P0|3|Scaffold the colocation service and seed rack inventory|Three synthetic sites with racks, power feeds and cooling capacity.
+CO-02|Software|squad:colocation|Sprint 1|story|P0|5|View available rack space and power capacity by site|As an ops lead I can see what is free before I ask for it.
+CO-03|Software|squad:colocation|Sprint 2|story|P0|5|Request a rack reservation with power and cooling requirements|Capture kW draw, redundancy needs and requested start date. Validate against remaining capacity.
+CO-04|Software|squad:colocation|Sprint 2|story|P1|5|Raise and track a remote-hands ticket with a severity level|A P1 at 2am is the whole point. Include expected response time per severity.
+CO-05|Software|squad:colocation|Sprint 3|story|P1|5|Show power draw per rack against the contracted limit|Chart actual against contracted, with a visual warning as the customer approaches the limit.
+CO-06|Software|squad:colocation|Sprint 3|story|P2|3|Upload and store a site access request document|Store in MinIO with access control and a retention policy.
+CO-07|Software|squad:colocation|Sprint 4|task|P1|3|Prevent double-booking of a rack under concurrent requests|Two customers reserving the same rack at once must not both succeed. Write the failing test first.
+CO-08|Software|squad:colocation|Sprint 4|spike|P2|2|Decide how to model partial-rack unit-level reservations|Customers want 4U, not a whole rack. Timebox one day and write an ADR.
+# SQ3 COLOCATION — DevOps ownership (same six for every software squad)
+CO-D1|Software|squad:colocation|Sprint 0|task|P0|3|Containerise the service with a multi-stage build and a non-root user|You build it, you ship it. Small image, no secrets baked in, pinned base image, healthcheck. CL3 reviews it but does not write it for you.
+CO-D2|Software|squad:colocation|Sprint 1|task|P0|3|Write and own your service's CI pipeline|Call CL3's reusable workflow: lint, unit test, Trivy scan, SBOM, build, sign. Green pipeline is your squad's responsibility, not the platform team's.
+CO-D3|Software|squad:colocation|Sprint 1|task|P0|3|Own your Helm chart and deploy your own service to dev|Start from CL2's chart library. Set your own probes, resource requests and limits. Argo CD syncs it — you own the values.
+CO-D4|Software|squad:colocation|Sprint 2|task|P0|3|Instrument your service with metrics, logs and traces|Prometheus metrics for rate, errors and duration. Structured JSON logs to Loki. OpenTelemetry spans to Tempo. Build your own Grafana dashboard.
+CO-D5|Software|squad:colocation|Sprint 3|task|P1|3|Define and publish your service's SLO and error budget|Agree it with CL4, not from them. Pick indicators a customer would actually notice. Put the burn-rate panel on your dashboard.
+CO-D6|Software|squad:colocation|Sprint 4|task|P1|3|Write your service's runbook and take an on-call shift on game day|Someone from another squad must be able to follow your runbook under pressure. You will be paged during CL4's game day.
+# ------------------------------------------------------ SQ4 PAYMENTS
+PY-01|Software|squad:payments|Sprint 0|task|P0|3|Scaffold the billing service with a multi-currency money type|No floats for money. ZAR, KES, NGN and GHS from day one.
+PY-02|Software|squad:payments|Sprint 1|story|P0|5|Generate a consolidated invoice across all services|One invoice covering connectivity, colocation and energy lines rather than three separate bills.
+PY-03|Software|squad:payments|Sprint 2|story|P0|5|Pay an invoice through a sandbox payment provider|Sandbox only. No real payment rails, no real card data, no PCI scope, ever.
+PY-04|Software|squad:payments|Sprint 2|story|P1|5|Wallet balance and top-up flow|Prepaid balance drawn down by usage-based services.
+PY-05|Software|squad:payments|Sprint 3|story|P0|5|Handle payment webhooks idempotently|The provider will retry. Replaying the same webhook must never double-credit an account.
+PY-06|Software|squad:payments|Sprint 3|story|P2|3|Download a statement as a PDF|Date-ranged, with a per-service breakdown. Use an open-source PDF library.
+PY-07|Software|squad:payments|Sprint 4|task|P0|3|Reconcile failed and duplicate payments|A daily job that surfaces mismatches for a human rather than silently correcting them.
+PY-08|Software|squad:payments|Sprint 4|bug|P0|2|Rounding error on multi-currency invoice totals|Totals drift by a cent on mixed-currency invoices. Fix it and add property-based tests.
+# SQ4 PAYMENTS — DevOps ownership (same six for every software squad)
+PY-D1|Software|squad:payments|Sprint 0|task|P0|3|Containerise the service with a multi-stage build and a non-root user|You build it, you ship it. Small image, no secrets baked in, pinned base image, healthcheck. CL3 reviews it but does not write it for you.
+PY-D2|Software|squad:payments|Sprint 1|task|P0|3|Write and own your service's CI pipeline|Call CL3's reusable workflow: lint, unit test, Trivy scan, SBOM, build, sign. Green pipeline is your squad's responsibility, not the platform team's.
+PY-D3|Software|squad:payments|Sprint 1|task|P0|3|Own your Helm chart and deploy your own service to dev|Start from CL2's chart library. Set your own probes, resource requests and limits. Argo CD syncs it — you own the values.
+PY-D4|Software|squad:payments|Sprint 2|task|P0|3|Instrument your service with metrics, logs and traces|Prometheus metrics for rate, errors and duration. Structured JSON logs to Loki. OpenTelemetry spans to Tempo. Build your own Grafana dashboard.
+PY-D5|Software|squad:payments|Sprint 3|task|P1|3|Define and publish your service's SLO and error budget|Agree it with CL4, not from them. Pick indicators a customer would actually notice. Put the burn-rate panel on your dashboard.
+PY-D6|Software|squad:payments|Sprint 4|task|P1|3|Write your service's runbook and take an on-call shift on game day|Someone from another squad must be able to follow your runbook under pressure. You will be paged during CL4's game day.
+# -------------------------------------------------------- SQ5 ENERGY
+EN-01|Software|squad:energy|Sprint 0|task|P0|3|Scaffold the telemetry service and a synthetic meter generator|Generate realistic solar and battery curves including cloudy days and outages.
+EN-02|Software|squad:energy|Sprint 1|story|P0|5|Ingest meter readings through an authenticated endpoint|Device authentication, schema validation, and rejection of readings from unknown meters.
+EN-03|Software|squad:energy|Sprint 2|story|P0|5|Site dashboard showing solar generation and battery state of charge|As a site owner I can see at a glance whether my site is generating and how much runtime is left.
+EN-04|Software|squad:energy|Sprint 2|story|P1|5|Time-series aggregation for hourly, daily and monthly views|Pre-aggregate so the dashboard stays fast as data grows. TimescaleDB is a reasonable starting point.
+EN-05|Software|squad:energy|Sprint 3|story|P1|5|Alert when battery state of charge falls below a threshold|Configurable per site. Must not fire repeatedly for the same incident.
+EN-06|Software|squad:energy|Sprint 3|spike|P2|3|Choose a time-series storage approach and justify it|Partitioned PostgreSQL against TimescaleDB against VictoriaMetrics. Write an ADR.
+EN-07|Software|squad:energy|Sprint 4|task|P1|3|Backfill and gap handling for missing meter readings|Sites lose connectivity. Distinguish a real zero from a missing reading.
+EN-08|Software|squad:energy|Sprint 4|story|P2|3|Export site energy data as CSV|Date-ranged export for the customer's own analysis.
+# SQ5 ENERGY — DevOps ownership (same six for every software squad)
+EN-D1|Software|squad:energy|Sprint 0|task|P0|3|Containerise the service with a multi-stage build and a non-root user|You build it, you ship it. Small image, no secrets baked in, pinned base image, healthcheck. CL3 reviews it but does not write it for you.
+EN-D2|Software|squad:energy|Sprint 1|task|P0|3|Write and own your service's CI pipeline|Call CL3's reusable workflow: lint, unit test, Trivy scan, SBOM, build, sign. Green pipeline is your squad's responsibility, not the platform team's.
+EN-D3|Software|squad:energy|Sprint 1|task|P0|3|Own your Helm chart and deploy your own service to dev|Start from CL2's chart library. Set your own probes, resource requests and limits. Argo CD syncs it — you own the values.
+EN-D4|Software|squad:energy|Sprint 2|task|P0|3|Instrument your service with metrics, logs and traces|Prometheus metrics for rate, errors and duration. Structured JSON logs to Loki. OpenTelemetry spans to Tempo. Build your own Grafana dashboard.
+EN-D5|Software|squad:energy|Sprint 3|task|P1|3|Define and publish your service's SLO and error budget|Agree it with CL4, not from them. Pick indicators a customer would actually notice. Put the burn-rate panel on your dashboard.
+EN-D6|Software|squad:energy|Sprint 4|task|P1|3|Write your service's runbook and take an on-call shift on game day|Someone from another squad must be able to follow your runbook under pressure. You will be paged during CL4's game day.
+# -------------------------------------------------- SQ6 AI ASSISTANT
+AI-01|Software|squad:ai|Sprint 0|task|P0|3|Scaffold the assistant service and define its tool interface|Define the read-only tools the assistant may call against the other five services.
+AI-02|Software|squad:ai|Sprint 1|spike|P0|3|Design retrieval over account, order and invoice data|Timebox two days. Consider an open-source vector store such as pgvector or Qdrant. Output an ADR.
+AI-03|Software|squad:ai|Sprint 2|story|P0|8|Answer account questions grounded in the customer's own data|Questions like when my link will be installed, or what my last invoice covered, answered from real records rather than guesses.
+AI-04|Software|squad:ai|Sprint 2|story|P0|5|Enforce tenant isolation so no cross-customer data can leak|The assistant must never see or return another organisation's data. Write adversarial tests.
+AI-05|Software|squad:ai|Sprint 3|story|P1|5|Escalate to a human support ticket when confidence is low|Better to hand off than to invent an answer. Carry the conversation context into the ticket.
+AI-06|Software|squad:ai|Sprint 3|story|P1|3|Show citations linking every answer back to its source record|The customer can click through and verify.
+AI-07|Software|squad:ai|Sprint 4|task|P0|3|Build a prompt-injection and jailbreak guardrail test suite|Run it in CI. A regression here is a security incident, not a bug.
+AI-08|Software|squad:ai|Sprint 4|task|P2|3|Log and cap assistant usage per customer|Track requests and cost per organisation and stop runaway usage.
+# SQ6 AI ASSISTANT — DevOps ownership (same six for every software squad)
+AI-D1|Software|squad:ai|Sprint 0|task|P0|3|Containerise the service with a multi-stage build and a non-root user|You build it, you ship it. Small image, no secrets baked in, pinned base image, healthcheck. CL3 reviews it but does not write it for you.
+AI-D2|Software|squad:ai|Sprint 1|task|P0|3|Write and own your service's CI pipeline|Call CL3's reusable workflow: lint, unit test, Trivy scan, SBOM, build, sign. Green pipeline is your squad's responsibility, not the platform team's.
+AI-D3|Software|squad:ai|Sprint 1|task|P0|3|Own your Helm chart and deploy your own service to dev|Start from CL2's chart library. Set your own probes, resource requests and limits. Argo CD syncs it — you own the values.
+AI-D4|Software|squad:ai|Sprint 2|task|P0|3|Instrument your service with metrics, logs and traces|Prometheus metrics for rate, errors and duration. Structured JSON logs to Loki. OpenTelemetry spans to Tempo. Build your own Grafana dashboard.
+AI-D5|Software|squad:ai|Sprint 3|task|P1|3|Define and publish your service's SLO and error budget|Agree it with CL4, not from them. Pick indicators a customer would actually notice. Put the burn-rate panel on your dashboard.
+AI-D6|Software|squad:ai|Sprint 4|task|P1|3|Write your service's runbook and take an on-call shift on game day|Someone from another squad must be able to follow your runbook under pressure. You will be paged during CL4's game day.
+# ---------------------------------------- CL1 INFRASTRUCTURE AND IaC
+LZ-01|Cloud|squad:infra|Sprint 0|task|P0|5|Choose the open-source infrastructure baseline and record it in an ADR|OpenTofu as the IaC tool. Decide the compute substrate, the Kubernetes distribution and the environment isolation model, and say why. Decide before you provision anything.
+LZ-02|Cloud|squad:infra|Sprint 0|task|P0|5|OpenTofu remote state on MinIO with state locking|Shared, versioned, locked state. Never on a laptop, never in the repo.
+LZ-03|Cloud|squad:infra|Sprint 1|task|P0|8|Build the network module: private networks, firewall rules and a WireGuard entry point|Reusable across dev, staging and production with no copy-paste. No node exposed directly to the internet.
+LZ-04|Cloud|squad:infra|Sprint 1|task|P0|5|Provision every compute node as code, with no manual console steps|If you cannot destroy and rebuild the environment from an empty state, this ticket is not done.
+LZ-05|Cloud|squad:infra|Sprint 2|task|P1|5|Reusable OpenTofu modules for PostgreSQL, Valkey and MinIO|Versioned modules with inputs, outputs and examples so product squads self-serve without asking you.
+LZ-06|Cloud|squad:infra|Sprint 2|task|P1|3|Labelling convention plus drift detection in CI|Every resource tagged with owner, environment and squad. A nightly plan that fails loudly when reality has drifted from code.
+LZ-07|Cloud|squad:infra|Sprint 3|task|P1|5|Secrets with OpenBao and the External Secrets Operator|Rotation, short-lived credentials, and a secret scanner in CI so nothing sensitive reaches the repo.
+LZ-08|Cloud|squad:infra|Sprint 4|task|P2|5|Policy as code with OPA and Conftest on every OpenTofu plan|Block public object storage and wide-open firewall rules at plan time. Prevent the mistake rather than detect it later.
+LZ-09|Cloud|squad:infra|Sprint 3|task|P0|5|Automated backups for PostgreSQL and MinIO with retention and encryption|Scheduled, encrypted, stored away from the thing they are backing up, with a documented retention period. Backups that live on the same node are not backups.
+LZ-10|Cloud|squad:infra|Sprint 4|task|P0|5|Prove it — restore the staging database from backup and time the recovery|A backup nobody has restored is not a backup. Destroy, restore, record the actual elapsed time, and write what went wrong the first time.
+# -------------------------------------------- CL2 CONTAINER PLATFORM
+PL-01|Cloud|squad:platform|Sprint 0|task|P0|5|Provision the Kubernetes cluster with OpenTofu|k3s or kubeadm, your call, recorded in an ADR. No cluster created by hand.
+PL-02|Cloud|squad:platform|Sprint 1|task|P0|5|Ingress with Traefik, plus cert-manager and Let's Encrypt|Every service reachable over HTTPS with certificates that renew themselves.
+PL-03|Cloud|squad:platform|Sprint 1|task|P0|5|Namespace per squad with resource quotas and Cilium network policies|One squad's runaway pod must not starve another squad. Default-deny between namespaces.
+PL-04|Cloud|squad:platform|Sprint 2|task|P1|5|A Helm chart library any software squad can adopt in under an hour|Sensible defaults for probes, limits, config and secrets. Squads set their own values — you provide the shape.
+PL-05|Cloud|squad:platform|Sprint 2|task|P1|5|Horizontal pod autoscaling and pod disruption budgets, proven with k6|A load test that visibly scales the deployment up and back down.
+PL-06|Cloud|squad:platform|Sprint 3|task|P1|8|Workload identity and mTLS between the six services|SPIFFE/SPIRE or Linkerd. No shared static secrets between services.
+PL-07|Cloud|squad:platform|Sprint 3|spike|P2|3|Decide whether a service mesh is justified at this scale|Complexity has a cost. Timebox two days and write an ADR either way.
+PL-08|Cloud|squad:platform|Sprint 4|task|P1|3|Cluster upgrade runbook, rehearsed in staging|Someone who was not in the room must be able to follow it.
+PL-09|Cloud|squad:platform|Sprint 4|task|P1|8|Cluster disaster recovery — rebuild staging from code and backups|Delete staging deliberately and bring it back. Document the real RTO and RPO you achieved, not the ones you hoped for.
+# -------------------------------- CL3 CI/CD AND DEVELOPER EXPERIENCE
+CD-01|Cloud|squad:cicd|Sprint 0|task|P0|5|Reusable GitHub Actions workflow: lint, test, Trivy scan, SBOM, build, cosign sign|One workflow all six software squads call, rather than six divergent copies.
+CD-02|Cloud|squad:cicd|Sprint 0|task|P0|3|Harbor registry with image signing, vulnerability scanning and retention|Signed images only. Old images cleaned up so storage does not creep.
+CD-03|Cloud|squad:cicd|Sprint 1|task|P0|5|GitOps with Argo CD using an app-of-apps pattern|Dev auto-syncs from the repo. The cluster's desired state lives in git, not in someone's shell history.
+CD-04|Cloud|squad:cicd|Sprint 2|task|P0|5|Promotion from dev to staging to production with an approval gate|The same signed artefact is promoted, never rebuilt per environment.
+CD-05|Cloud|squad:cicd|Sprint 2|task|P1|5|Ephemeral preview environment for every pull request|A namespace or vcluster per PR, torn down automatically when it closes.
+CD-06|Cloud|squad:cicd|Sprint 3|task|P1|5|A database migration step that is safe to run inside a pipeline|Forward-only, reversible, and safe to run twice. Atlas or Flyway.
+CD-07|Cloud|squad:cicd|Sprint 3|task|P1|5|Progressive delivery with automatic rollback|Argo Rollouts with a canary step that aborts on a bad health signal, then notifies.
+CD-08|Cloud|squad:cicd|Sprint 4|task|P2|5|Developer portal or onboarding script: laptop to first deploy in under an hour|Backstage, or a well-written script. Test it on someone who has never seen the repo, and time them.
+# ----------------------------------- CL4 OBSERVABILITY, SRE AND COST
+OB-01|Cloud|squad:sre|Sprint 0|task|P0|3|Centralised logs with Loki and Alloy|Structured logs, sensible retention, and no secrets or personal data in log lines.
+OB-02|Cloud|squad:sre|Sprint 1|task|P0|5|Prometheus and Grafana, with a starter dashboard per service|Give each squad a working RED dashboard as a starting point. They extend it themselves in ticket D4.
+OB-03|Cloud|squad:sre|Sprint 1|task|P0|5|Distributed tracing with the OpenTelemetry Collector and Tempo|One trace should follow a single customer request across every service it touches.
+OB-04|Cloud|squad:sre|Sprint 2|task|P0|5|SLOs and error budgets with Sloth or Pyrra, agreed with each squad|Sit with each squad. An SLO written alone by the platform team is not an SLO.
+OB-05|Cloud|squad:sre|Sprint 2|task|P1|5|Alertmanager, an on-call rotation simulation, and runbook links|Every alert links to a runbook or it gets deleted. Include the software squads in the rotation.
+OB-06|Cloud|squad:sre|Sprint 3|task|P1|5|Cost visibility with OpenCost, broken down by squad and namespace|Publish it every Wednesday. Visible cost changes behaviour faster than a lecture.
+OB-07|Cloud|squad:sre|Sprint 3|task|P1|3|Budget alerts and automatic shutdown of idle dev environments|Nights and weekends off. Report the saving at demo day.
+OB-08|Cloud|squad:sre|Sprint 4|task|P1|5|Run a game day: inject failure with Litmus and measure detect and recover time|Break something without warning while the software squads are on call. Write an honest, blameless incident review afterwards.
+OB-09|Cloud|squad:sre|Sprint 4|task|P1|3|Add a data-loss scenario to the game day|Do not only break availability. Break data, and see whether anyone can get it back. Coordinate with CL1 on LZ-10 first.
+# ----------------------------------------------------- CROSS-CUTTING
+XX-01|Cross-cutting|squad:cross-cutting|Sprint 0|chore|P0|2|Agree branch protection, pull request rules and CODEOWNERS as a cohort|Decide the rules together so they are owned rather than imposed.
+XX-02|Cross-cutting|squad:cross-cutting|Sprint 0|task|P0|3|Publish the API contract style guide and a shared error format|Six services with six different error shapes is exactly what this prevents.
+XX-03|Cross-cutting|squad:cross-cutting|Sprint 0|task|P1|2|Write the synthetic data generator shared by every service|One source of fake customers, sites and orders so the demo hangs together.
+XX-04|Cross-cutting|squad:cross-cutting|Sprint 0|task|P0|2|Write the escalation ladder onto the wall and agree to follow it|Thirty minutes alone, then docs, then your squad, then another squad, then a facilitator. See docs/COMPETENCY-FRAMEWORK.md.
+XX-05|Cross-cutting|squad:cross-cutting|Sprint 1|task|P1|3|Set up the ADR directory and record the first four decisions|Template plus the decisions already made in Sprint 0.
+XX-06|Cross-cutting|squad:cross-cutting|Sprint 3|task|P0|5|End-to-end integration test covering order to invoice to payment|Crosses four squads. Whoever picks it up has to coordinate, which is the lesson.
+XX-07|Cross-cutting|squad:cross-cutting|Sprint 4|task|P0|5|Accessibility audit of the portal against WCAG 2.2 AA|Keyboard navigation, contrast, screen reader labels. Raise findings as tickets.
+XX-08|Cross-cutting|squad:cross-cutting|Sprint 4|task|P0|5|Threat model the portal and log the findings as tickets|A STRIDE walkthrough with all ten squads represented.
+XX-11|Cross-cutting|squad:cross-cutting|Sprint 4|task|P1|3|Write the service acceptance checklist — nothing is live until it passes|Runbook exists, SLO published, dashboard live, backups proven, on-call named, rollback tested. Every service is then assessed against it.
+XX-12|Cross-cutting|squad:cross-cutting|Sprint 5|task|P1|3|Decommission the preview and dev environments and prove nothing was orphaned|Tearing things down cleanly is part of the job. Show the cost drop and the empty state.
+XX-09|Cross-cutting|squad:cross-cutting|Sprint 5|task|P0|3|Prepare the demo day showcase script and runbook|Who says what, in what order, and a fallback if the live demo fails.
+XX-10|Cross-cutting|squad:cross-cutting|Sprint 5|task|P0|3|Write your placement portfolio: README, architecture note and three STAR stories|Pull the stories straight from your own tickets. This is what you take to an interview.

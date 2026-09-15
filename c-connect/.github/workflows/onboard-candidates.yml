@@ -1,0 +1,35 @@
+name: Onboard Candidates
+
+# Invites the 30 candidates, adds them to their squad team, and assigns
+# the Sprint 0 and Sprint 1 tickets round-robin within each squad.
+#
+# Commit backlog/candidates.csv first (copy candidates.example.csv).
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['backlog/candidates.csv']
+
+permissions:
+  contents: read
+
+jobs:
+  onboard:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.BOOTSTRAP_TOKEN }}
+      GH_ORG: ${{ github.repository_owner }}
+      GH_REPO: ${{ github.event.repository.name }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update -qq && sudo apt-get install -y jq
+      - name: Check roster exists
+        run: |
+          test -f backlog/candidates.csv || {
+            echo "::error::backlog/candidates.csv not found. Copy candidates.example.csv, fill it in, and commit it."
+            exit 1; }
+      - name: Invite and assign
+        run: |
+          chmod +x scripts/*.sh
+          ./scripts/03-assign-squads.sh

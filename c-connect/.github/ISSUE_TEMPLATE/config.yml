@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Ways of working
+    url: https://github.com/ORG/c-connect/blob/develop/docs/WAYS-OF-WORKING.md
+    about: Board policy, Definition of Ready and Done, git workflow
+  - name: Ask your squad first
+    url: https://github.com/ORG/c-connect/discussions
+    about: Questions and design debates belong in Discussions, not in issues

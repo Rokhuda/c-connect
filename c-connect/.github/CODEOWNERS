@@ -1,0 +1,18 @@
+# Every path has an owning squad. Replace ORG with your GitHub org name.
+# Format: path  @org/team
+
+*                        @ORG/software-track @ORG/cloud-track
+
+/services/identity/      @ORG/sq1-identity
+/services/connectivity/  @ORG/sq2-connectivity
+/services/colocation/    @ORG/sq3-colocation
+/services/payments/      @ORG/sq4-payments
+/services/energy/        @ORG/sq5-energy
+/services/ai-assistant/  @ORG/sq6-ai-assistant
+
+/infra/landing-zone/     @ORG/cl1-infrastructure
+/infra/kubernetes/       @ORG/cl2-platform
+/.github/workflows/      @ORG/cl3-cicd
+/infra/observability/    @ORG/cl4-sre
+
+/docs/                   @ORG/software-track @ORG/cloud-track

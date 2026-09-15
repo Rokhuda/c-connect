@@ -1,0 +1,24 @@
+name: Spike
+description: A timeboxed investigation whose output is a decision
+title: "[REF] "
+labels: ["type:spike"]
+body:
+  - type: textarea
+    id: question
+    attributes:
+      label: The question we need answered
+    validations: { required: true }
+  - type: input
+    id: timebox
+    attributes:
+      label: Timebox
+      placeholder: "e.g. 2 days"
+    validations: { required: true }
+  - type: textarea
+    id: output
+    attributes:
+      label: Expected output
+      value: |
+        - [ ] An ADR in docs/adr/ recording the decision and the trade-offs
+        - [ ] Follow-up tickets raised
+        - [ ] Five-minute walkthrough at the next stand-up

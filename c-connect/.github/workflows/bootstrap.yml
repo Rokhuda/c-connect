@@ -1,0 +1,108 @@
+name: Bootstrap C Connect
+
+# Runs the entire project setup from inside GitHub itself.
+#
+# One-time prep:
+#   1. Create a fine-grained or classic PAT with scopes:
+#        repo, project, read:org, admin:org, workflow
+#   2. Add it to this repo as a secret named BOOTSTRAP_TOKEN
+#        Settings > Secrets and variables > Actions > New repository secret
+#   3. Actions tab > "Bootstrap C Connect" > Run workflow
+#
+# Idempotent: safe to re-run. Existing labels, milestones, teams, board
+# fields and tickets are skipped, so adding rows to backlog/backlog.psv
+# and pushing will create only the new tickets.
+
+on:
+  workflow_dispatch:
+    inputs:
+      board_title:
+        description: "Name of the Kanban board"
+        default: "C Connect Delivery"
+        required: true
+      seed_sprint:
+        description: "Seed only one sprint (e.g. 'Sprint 0'), or leave blank for all 132 tickets"
+        default: ""
+        required: false
+      create_teams:
+        description: "Create org squad teams (needs admin:org on the token)"
+        type: boolean
+        default: true
+  push:
+    branches: [main]
+    paths:
+      - 'backlog/backlog.psv'
+      - 'scripts/**'
+
+permissions:
+  contents: read
+
+jobs:
+  bootstrap:
+    name: Set up repo, board and tickets
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.BOOTSTRAP_TOKEN }}
+      GH_ORG: ${{ github.repository_owner }}
+      GH_REPO: ${{ github.event.repository.name }}
+      BOARD_TITLE: ${{ inputs.board_title || 'C Connect Delivery' }}
+      SKIP_TEAMS: ${{ inputs.create_teams == false && '1' || '' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check the token is present
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "::error::Secret BOOTSTRAP_TOKEN is not set."
+            echo "Create a PAT with scopes repo, project, read:org, admin:org, workflow"
+            echo "and add it under Settings > Secrets and variables > Actions."
+            exit 1
+          fi
+          gh auth status
+
+      - name: Install jq
+        run: sudo apt-get update -qq && sudo apt-get install -y jq
+
+      - name: Repo settings, labels, milestones, teams, branch protection
+        run: |
+          chmod +x scripts/*.sh
+          ./scripts/00-bootstrap-repo.sh
+
+      - name: Create the Kanban board and its fields
+        run: ./scripts/01-create-project-board.sh
+
+      - name: Seed the backlog onto the board
+        run: ./scripts/02-seed-issues.sh "${{ inputs.seed_sprint }}"
+
+      - name: Rewrite CODEOWNERS and templates with the real org name
+        run: |
+          sed -i "s|@ORG/|@$GH_ORG/|g" .github/CODEOWNERS
+          sed -i "s|github.com/ORG/|github.com/$GH_ORG/|g" .github/ISSUE_TEMPLATE/config.yml
+          if ! git diff --quiet; then
+            git config user.name "c-connect-bot"
+            git config user.email "actions@github.com"
+            git commit -am "chore: point CODEOWNERS and templates at $GH_ORG"
+            git push
+          fi
+
+      - name: Summary
+        run: |
+          source scripts/.project-env
+          {
+            echo "## C Connect is set up"
+            echo ""
+            echo "| | |"
+            echo "|---|---|"
+            echo "| Repo | https://github.com/$GH_ORG/$GH_REPO |"
+            echo "| Board | $PROJECT_URL |"
+            echo "| Issues | $(gh issue list --repo "$GH_ORG/$GH_REPO" --state all --limit 500 --json number --jq 'length') |"
+            echo ""
+            echo "### Three manual steps left (about five minutes, board UI only)"
+            echo "1. Set WIP limits per column — see docs/WAYS-OF-WORKING.md"
+            echo "2. Create the five saved views"
+            echo "3. Project Settings > Workflows: enable *Item added* -> Backlog,"
+            echo "   *PR merged* -> Testing, *Item closed* -> Done"
+            echo ""
+            echo "Then fill in \`backlog/candidates.csv\` and run the **Onboard Candidates** workflow."
+          } >> "$GITHUB_STEP_SUMMARY"

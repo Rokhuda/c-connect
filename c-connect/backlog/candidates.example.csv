@@ -1,0 +1,37 @@
+# Copy to candidates.csv and fill in. 30 rows: 18 software + 12 cloud.
+# track: software | cloud
+# squad_label: squad:identity squad:connectivity squad:colocation squad:payments
+#              squad:energy squad:ai squad:infra squad:platform
+#              squad:cicd squad:sre
+# role_sprint1: lead | quality | scribe   (rotate every sprint)
+github_handle,full_name,track,squad_label,role_sprint1
+octocat-01,Candidate One,software,squad:identity,lead
+octocat-02,Candidate Two,software,squad:identity,quality
+octocat-03,Candidate Three,software,squad:identity,scribe
+octocat-04,Candidate Four,software,squad:connectivity,lead
+octocat-05,Candidate Five,software,squad:connectivity,quality
+octocat-06,Candidate Six,software,squad:connectivity,scribe
+octocat-07,Candidate Seven,software,squad:colocation,lead
+octocat-08,Candidate Eight,software,squad:colocation,quality
+octocat-09,Candidate Nine,software,squad:colocation,scribe
+octocat-10,Candidate Ten,software,squad:payments,lead
+octocat-11,Candidate Eleven,software,squad:payments,quality
+octocat-12,Candidate Twelve,software,squad:payments,scribe
+octocat-13,Candidate Thirteen,software,squad:energy,lead
+octocat-14,Candidate Fourteen,software,squad:energy,quality
+octocat-15,Candidate Fifteen,software,squad:energy,scribe
+octocat-16,Candidate Sixteen,software,squad:ai,lead
+octocat-17,Candidate Seventeen,software,squad:ai,quality
+octocat-18,Candidate Eighteen,software,squad:ai,scribe
+octocat-19,Candidate Nineteen,cloud,squad:infra,lead
+octocat-20,Candidate Twenty,cloud,squad:infra,quality
+octocat-21,Candidate TwentyOne,cloud,squad:infra,scribe
+octocat-22,Candidate TwentyTwo,cloud,squad:platform,lead
+octocat-23,Candidate TwentyThree,cloud,squad:platform,quality
+octocat-24,Candidate TwentyFour,cloud,squad:platform,scribe
+octocat-25,Candidate TwentyFive,cloud,squad:cicd,lead
+octocat-26,Candidate TwentySix,cloud,squad:cicd,quality
+octocat-27,Candidate TwentySeven,cloud,squad:cicd,scribe
+octocat-28,Candidate TwentyEight,cloud,squad:sre,lead
+octocat-29,Candidate TwentyNine,cloud,squad:sre,quality
+octocat-30,Candidate Thirty,cloud,squad:sre,scribe
