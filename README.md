@@ -25,7 +25,7 @@ problems that look and feel like the real thing.
 | Request rack space, power draw, remote-hands tickets | Squad 3 — Colocation | Africa Data Centres |
 | View invoices, pay, manage wallet + top-ups | Squad 4 — Payments | Sasai Fintech |
 | Monitor solar/battery output at a site | Squad 5 — Energy | Distributed Power Africa |
-| Ask a support copilot questions about their account | Squad 6 — AI Assistant | Cassava AI |
+| Ask a support copilot questions about their account | Squad 6 — AI Assistant | C AI |
 
 The **four cloud squads** build the platform: infrastructure as code, a Kubernetes
 runtime, GitOps delivery, and observability with cost visibility.
