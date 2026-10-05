@@ -18,27 +18,27 @@ say() { printf '\n\033[1;36m==> %s\033[0m\n' "$*"; }
 
 # ------------------------------------------------------------ create board
 say "Creating project board: $BOARD_TITLE"
-EXISTING=$(gh project list --owner "$GH_ORG" --format json \
+EXISTING=$(gh project list --owner "@me" --format json \
   | jq -r --arg t "$BOARD_TITLE" '.projects[] | select(.title==$t) | .number' | head -1)
 
 if [[ -n "$EXISTING" ]]; then
   NUMBER="$EXISTING"; echo "    already exists (#$NUMBER)"
 else
-  NUMBER=$(gh project create --owner "$GH_ORG" --title "$BOARD_TITLE" --format json | jq -r .number)
+  NUMBER=$(gh project create --owner "@me" --title "$BOARD_TITLE" --format json | jq -r .number)
   echo "    created #$NUMBER"
 fi
 
-PROJECT_ID=$(gh project view "$NUMBER" --owner "$GH_ORG" --format json | jq -r .id)
-PROJECT_URL=$(gh project view "$NUMBER" --owner "$GH_ORG" --format json | jq -r .url)
+PROJECT_ID=$(gh project view "$NUMBER" --owner "@me" --format json | jq -r .id)
+PROJECT_URL=$(gh project view "$NUMBER" --owner "@me" --format json | jq -r .url)
 
 # --------------------------------------------------------- link to the repo
 say "Linking board to $GH_ORG/$GH_REPO"
-gh project link "$NUMBER" --owner "$GH_ORG" --repo "$GH_ORG/$GH_REPO" >/dev/null 2>&1 \
+gh project link "$NUMBER" --owner "@me" --repo "$GH_ORG/$GH_REPO" >/dev/null 2>&1 \
   || echo "    link failed or already linked"
 
 # --------------------------------------------- rewrite built-in Status field
 say "Setting Kanban columns on the Status field"
-STATUS_FIELD_ID=$(gh project field-list "$NUMBER" --owner "$GH_ORG" --format json \
+STATUS_FIELD_ID=$(gh project field-list "$NUMBER" --owner "@me" --format json \
   | jq -r '.fields[] | select(.name=="Status") | .id')
 
 if [[ -n "$STATUS_FIELD_ID" && "$STATUS_FIELD_ID" != "null" ]]; then
@@ -66,14 +66,14 @@ say "Creating custom fields"
 mkfield() {
   local name="$1" type="$2" opts="${3:-}"
   local exists
-  exists=$(gh project field-list "$NUMBER" --owner "$GH_ORG" --format json \
+  exists=$(gh project field-list "$NUMBER" --owner "@me" --format json \
     | jq -r --arg n "$name" '.fields[] | select(.name==$n) | .id')
   if [[ -n "$exists" ]]; then echo "    $name exists"; return; fi
   if [[ -n "$opts" ]]; then
-    gh project field-create "$NUMBER" --owner "$GH_ORG" --name "$name" \
+    gh project field-create "$NUMBER" --owner "@me" --name "$name" \
       --data-type "$type" --single-select-options "$opts" >/dev/null
   else
-    gh project field-create "$NUMBER" --owner "$GH_ORG" --name "$name" --data-type "$type" >/dev/null
+    gh project field-create "$NUMBER" --owner "@me" --name "$name" --data-type "$type" >/dev/null
   fi
   echo "    $name"
 }

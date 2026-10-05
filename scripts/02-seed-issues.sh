@@ -26,7 +26,7 @@ source "$HERE/.project-env" 2>/dev/null || { echo "Run 01-create-project-board.s
 say() { printf '\033[1;36m==> %s\033[0m\n' "$*"; }
 
 # ------------------------------------------------- cache project field metadata
-FIELDS_JSON=$(gh project field-list "$PROJECT_NUMBER" --owner "$GH_ORG" --format json)
+FIELDS_JSON=$(gh project field-list "$PROJECT_NUMBER" --owner "@me" --format json)
 field_id()  { jq -r --arg n "$1" '.fields[] | select(.name==$n) | .id' <<<"$FIELDS_JSON"; }
 option_id() { jq -r --arg n "$1" --arg o "$2" \
   '.fields[] | select(.name==$n) | .options[] | select(.name==$o) | .id' <<<"$FIELDS_JSON"; }
@@ -106,7 +106,7 @@ EOF
         --label "$labels" \
         --milestone "$sprint")
 
-  item_id=$(gh project item-add "$PROJECT_NUMBER" --owner "$GH_ORG" --url "$url" --format json | jq -r .id)
+  item_id=$(gh project item-add "$PROJECT_NUMBER" --owner "@me" --url "$url" --format json | jq -r .id)
 
   set_select "$item_id" "$F_STATUS"   "$(option_id "Status"   "Backlog")"
   set_select "$item_id" "$F_SQUAD"    "$(option_id "Squad"    "$(squad_option "$squad")")"
