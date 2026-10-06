@@ -106,7 +106,7 @@ EOF
         --label "$labels" \
         --milestone "$sprint")
 
-  item_id=$(gh project item-add "$PROJECT_NUMBER" --owner "@me" --url "$url" --format json | jq -r .id)
+  item_id=$(gh project item-add "$PROJECT_NUMBER" --owner "$GH_ORG" --url "$url" --format json | jq -r .id)
 
   set_select "$item_id" "$F_STATUS"   "$(option_id "Status"   "Backlog")"
   set_select "$item_id" "$F_SQUAD"    "$(option_id "Squad"    "$(squad_option "$squad")")"
