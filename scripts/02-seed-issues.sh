@@ -106,7 +106,19 @@ EOF
         --label "$labels" \
         --milestone "$sprint")
 
-  item_id=$(gh project item-add "$PROJECT_NUMBER" --owner "$GH_ORG" --url "$url" --format json | jq -r .id)
+  # Project item may already exist from a prior bootstrap run.
+  item_id=""
+  if ! item_id=$(gh project item-add "$PROJECT_NUMBER" --owner "$GH_ORG" --url "$url" --format json 2>/dev/null | jq -r '.id // empty'); then
+    issue_number=$(gh issue view "$url" --json number --jq '.number')
+    item_id=$(gh project item-list "$PROJECT_NUMBER" --owner "$GH_ORG" --format json \
+      | jq -r --arg n "$issue_number" '.items[] | select(.content.number == ($n|tonumber)) | .id' \
+      | head -1)
+  fi
+
+  if [[ -z "$item_id" || "$item_id" == "null" ]]; then
+    echo "Could not resolve project item for $url" >&2
+    continue
+  fi
 
   set_select "$item_id" "$F_STATUS"   "$(option_id "Status"   "Backlog")"
   set_select "$item_id" "$F_SQUAD"    "$(option_id "Squad"    "$(squad_option "$squad")")"
@@ -124,3 +136,4 @@ say "Created $created issues, skipped $skipped already present"
 say "Board: $PROJECT_URL"
 echo
 echo "Now move the Sprint 0 tickets from Backlog to Ready with each squad during refinement."
+
