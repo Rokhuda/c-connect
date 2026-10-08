@@ -82,8 +82,7 @@ jobs:
           if ! git diff --quiet; then
             git config user.name "c-connect-bot"
             git config user.email "actions@github.com"
-            git config --global credential.helper store
-            echo "https://${{ github.actor }}:${{ env.GH_TOKEN }}@github.com" > ~/.git-credentials
+            git config --global url."https://$GH_TOKEN:x-oauth-basic@github.com/".insteadOf "https://github.com/"
             git commit -am "chore: point CODEOWNERS and templates at $GH_ORG"
             git push
           fi
