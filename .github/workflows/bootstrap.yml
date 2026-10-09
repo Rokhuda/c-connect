@@ -28,11 +28,11 @@ on:
         description: "Create org squad teams (needs admin:org on the token)"
         type: boolean
         default: true
-  push:
-    branches: [main]
-    paths:
-      - 'backlog/backlog.psv'
-      - 'scripts/**'
+  # push:
+  #   branches: [main]
+  #   paths:
+  #     - 'backlog/backlog.psv'
+  #     - 'scripts/**'
 
 permissions:
   contents: write
@@ -84,9 +84,9 @@ jobs:
             git config user.email "actions@github.com"
             git config --global url."https://$GH_TOKEN:x-oauth-basic@github.com/".insteadOf "https://github.com/"
             git fetch origin main
-            git rebase origin/main
+            git rebase origin/main || { git status; exit 1; }
             git commit -am "chore: point CODEOWNERS and templates at $GH_ORG"
-            git push
+            git push orign HEAD:main
           fi
             
             # Create a branch and PR instead of pushing directly
