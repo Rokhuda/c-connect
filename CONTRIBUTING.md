@@ -59,7 +59,7 @@ What we rejected and why.
 
 ## Things that will get a PR rejected
 
-- Secrets, credentials, `.env` files, real personal data, or real Cassava assets
+- Secrets, credentials, `.env` files, real personal data, or real C assets
 - Infrastructure created by clicking in a cloud console instead of in Terraform
 - A change with no test and no explanation of why a test was not possible
 - A 2,000-line pull request
