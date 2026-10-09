@@ -84,6 +84,10 @@ jobs:
             git config user.email "actions@github.com"
             git config --global url."https://$GH_TOKEN:x-oauth-basic@github.com/".insteadOf "https://github.com/"
             git commit -am "chore: point CODEOWNERS and templates at $GH_ORG"
+            git fetch origin main
+            git rebase origin/main
+            git push
+          fi
             
             # Create a branch and PR instead of pushing directly
             BRANCH_NAME="bootstrap/update-codeowners-$(date +%s)"
